@@ -2,51 +2,9 @@
 using zad41;
 
 var context = new MyDbContext();
-context.Database.EnsureCreated();
 
+//var data=new Data_add();      //dodawanie klientów do bazy
 
- static string RandomString(int range)
-{
-    var chars = "abcdefghijklmnopqrstuwxyz";
-    var random = new Random();
-    var result = new string(
-        Enumerable.Repeat(chars, range)
-                    .Select(s => s[random.Next(s.Length)])
-                    .ToArray());
-
-    char[] resultAsChars = result.ToCharArray();
-    resultAsChars[0]=char.ToUpper(resultAsChars[0]);
-   result = new string(resultAsChars);
-
-    return result;
-}
-
-Random rnd = new Random();
-
-
-
-for (int j = 0; j < 15; j++)
-{
-    var author = new Author()
-    {
-        Name = RandomString(rnd.Next(3, 8)),
-        LastName = RandomString(rnd.Next(5, 10))
-    };
-
-    for (int i = 0; i < 4; i++)
-    {
-        author.Books.Add(new Book()
-        {
-            Title = (RandomString(rnd.Next(5, 15)) + " " + RandomString(rnd.Next(5, 15))),
-            Year = rnd.Next(1950, 2022)
-        });
-    }
-
-
-    context.Authors.Add(author);
-
-    context.SaveChanges();
-}
 
 Console.WriteLine("Opcje wyszukiwania: ");
 Console.WriteLine("1. Wyszukaj autora po nazwisk u");
@@ -64,9 +22,13 @@ switch(wybor)
         {
             Console.WriteLine("Podaj nazwisko autora:");
             datafromuser =Console.ReadLine();
-            foreach (var item in context.Authors.ToList())
+
+            var result = context.Authors
+            .Where(Author => Author.LastName == datafromuser)
+            .ToArray();
+
+            foreach (var item in result)
             {
-               if(item.LastName==datafromuser)
                 Console.WriteLine("\nAutor: "+item.Name+" "+item.LastName);
             }
 
@@ -76,9 +38,13 @@ switch(wybor)
         {
             Console.WriteLine("Podaj tytul ksiazki:");
             datafromuser = Console.ReadLine();
-            foreach (var item in context.Books.ToList())
+
+            var result = context.Books
+            .Where(Book => Book.Title == datafromuser)
+            .ToArray();
+
+            foreach (var item in result)
             {
-                if (item.Title == datafromuser)
                     Console.WriteLine("\nKsiazka: " + item.Title + "\n" +
                         "Rok wydania: "+ item.Year);
             }
@@ -87,23 +53,89 @@ switch(wybor)
     case 3:
         {
             int author_index=0;
+
             Console.WriteLine("Podaj nazwisko autora:");
             datafromuser = Console.ReadLine();
-            foreach (var item in context.Authors.Include(x => x.Books).ToList())
+
+            /*var result = context.Authors
+                .Where(Author => Author.LastName == datafromuser)
+                .Include(a=>a.Name)
+                .ThenInclude(b => b.)
+                .ToArray();*/
+
+            /*var result = context.Authors
+                .Join
+                (
+                context.Books,
+                Author => Author.LastName,
+                Book => Book.Author.Id,
+                (Author, Book) => new
+                {
+                    Name = Author.Name,
+                    LastName = Author.LastName,
+                    Title = Book.Title,
+                    Year = Book.Year
+                })
+                .ToArray();*/
+
+            /* var query = from Author in context.Set<Author>()
+                         join book in context.Set<Book>()
+                         on new { Id=(int?)Author.Id,Author.LastName}
+                         equals new {Id =book.AuthorID, LastName=datafromuser}
+                         select new {Author, book};
+
+                         /*on book.AuthorID equals Author.Id
+                         select new { book, Author };*/
+
+
+
+            var result = context.Authors
+            .Where(Author => Author.LastName == datafromuser)
+            .ToArray();
+
+            foreach (var item in result)
+            {
+                Console.WriteLine("\nAutor: " + item.Name + " " + item.LastName);
+
+                author_index = item.Id;
+            }
+
+            var result2 = context.Books
+            .Where(Book => Book.AuthorID == author_index)
+            .ToArray();
+
+            foreach (var item in result2)
+            {
+                Console.WriteLine("\nTytuł: " + item.Title + " " + item.Year);
+
+                author_index = item.Id;
+            }
+
+
+
+            /* foreach (var item in context.Authors.Include(x => x.Booksx).ToList())
             {
                 if (item.LastName == datafromuser)
                 {
                     Console.WriteLine("\nAutor: " + item.Name + " " + item.LastName+"\n");
                     author_index = item.Id;
                 }
-                    
-            }
-            foreach (var item in context.Books.ToList())
+
+            }*/
+
+            /*var query = from b in context.Set<Book>()
+                        join a in context.Set<Author>()
+                            on b.AuthorID equals a.Id into grouping
+                        select new { b, Posts = grouping.Where(b => b.LastName.Contains(datafromuser)).ToArray()};
+
+            foreach (var item in query)
             {
-                if (item.AuthorID == author_index)
-                    Console.WriteLine("\nTytuł: " + item.Title + "\n" +
-                        "Rok wydania: " + item.Year);
-            }
+                Console.WriteLine(item.b.Title);
+                Console.WriteLine(item.b.Year);
+                Console.WriteLine(item.b.Author.Name);
+                Console.WriteLine(item.b.Author.LastName); 
+            }*/
+
 
             break;
 //.
