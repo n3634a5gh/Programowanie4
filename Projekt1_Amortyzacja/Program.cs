@@ -15,10 +15,10 @@ while(true)
     Console.Clear();
 
     Console.WriteLine("Amortyzacja srodkow trwalych\n\n");
-    Console.WriteLine("1.Dodawanie nowej klasyfikacji");
-    Console.WriteLine("2.Dodawanie nowego wytworcy");
-    Console.WriteLine("3.Dodawanie nowego srodka trwalego");
-    Console.WriteLine("4.Wyswietl dane o srodku trwalym");
+    Console.WriteLine("1.Dodawanie nowej klasyfikacji:");
+    Console.WriteLine("2.Dodawanie nowego wytworcy:");
+    Console.WriteLine("3.Dodawanie nowego srodka trwalego:");
+    Console.WriteLine("4.Wyswietl dane o srodku trwalym:");
     Console.WriteLine("0.Wyjscie");
 
     program=Convert.ToInt32(Console.ReadLine());
